@@ -15,7 +15,7 @@ const Onboarding = () => {
 
   return (
     <SafeAreaView
-      style={tw.style("flex h-full items-center justify-between bg-white")}
+      style={tw.style("flex h-full items-center justify-between bg-white py-4")}
     >
       <TouchableOpacity
         onPress={() => {

@@ -1,11 +1,17 @@
 import { View, Text, ScrollView, Image } from "react-native";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, set, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import React from "react";
 import tw from "@/lib/tw";
 import { icons, images } from "@/constants/data";
 import InputField from "@/components/InputField";
+import CustomButton from "@/components/CustomButton";
+import { Link } from "expo-router";
+import FormErrorMessage from "@/components/FormErrorMessage";
+import OAuth from "@/components/OAuth";
+import { isClerkAPIResponseError, useSignUp } from "@clerk/clerk-expo";
+import { useRouter } from "expo-router";
 
 const signUpSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -14,6 +20,9 @@ const signUpSchema = z.object({
 });
 
 const SignUp = () => {
+  const { isLoaded, signUp, setActive } = useSignUp();
+  const router = useRouter();
+
   const {
     control,
     handleSubmit,
@@ -26,6 +35,78 @@ const SignUp = () => {
       password: "",
     },
   });
+
+  const [verification, setVerification] = React.useState({
+    state: "default",
+    error: "",
+    code: "",
+  });
+
+  const [pendingVerification, setPendingVerification] = React.useState(false);
+  const [code, setCode] = React.useState("");
+
+  const onSignUpPress = handleSubmit(async (data) => {
+    if (!isLoaded) {
+      return;
+    }
+
+    try {
+      await signUp.create({
+        emailAddress: data.email,
+        firstName: data.name,
+        password: data.password,
+      });
+
+      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+
+      setVerification({
+        ...verification,
+        state: "pending",
+      });
+    } catch (err: any) {
+      // See https://clerk.com/docs/custom-flows/error-handling
+      // for more info on error handling
+      console.error(JSON.stringify(err, null, 2));
+    }
+  });
+
+  const onPressVerify = async () => {
+    if (!isLoaded) {
+      return;
+    }
+
+    try {
+      const completeSignUp = await signUp.attemptEmailAddressVerification({
+        code: verification.code,
+      });
+
+      if (completeSignUp.status === "complete") {
+        await setActive({ session: completeSignUp.createdSessionId });
+        setVerification({
+          ...verification,
+          state: "success",
+        });
+        router.replace("/");
+      } else {
+        setVerification({
+          ...verification,
+          state: "failed",
+          error: "Verification failed",
+        });
+      }
+    } catch (err: unknown) {
+      let msg = "An error occurred";
+      if (isClerkAPIResponseError(err)) {
+        msg = err.errors[0].longMessage || "An error occurred";
+      }
+
+      setVerification({
+        ...verification,
+        state: "failed",
+        error: msg,
+      });
+    }
+  };
 
   return (
     <ScrollView style={tw.style("flex-1 bg-white")}>
@@ -44,7 +125,7 @@ const SignUp = () => {
           </Text>
         </View>
 
-        <View style={tw.style("p-5")}>
+        <View style={tw.style("px-5")}>
           <Controller
             control={control}
             rules={{
@@ -62,10 +143,11 @@ const SignUp = () => {
             )}
             name="name"
           />
-          {errors.name && <Text>This is required.</Text>}
+
+          <FormErrorMessage error={errors.name} />
         </View>
 
-        <View style={tw.style("p-5")}>
+        <View style={tw.style("px-5")}>
           <Controller
             control={control}
             rules={{
@@ -83,10 +165,11 @@ const SignUp = () => {
             )}
             name="email"
           />
-          {errors.email && <Text>This is required.</Text>}
+
+          <FormErrorMessage error={errors.email} />
         </View>
 
-        <View style={tw.style("p-5")}>
+        <View style={tw.style("px-5")}>
           <Controller
             control={control}
             rules={{
@@ -105,8 +188,20 @@ const SignUp = () => {
             )}
             name="password"
           />
-          {errors.password && <Text>This is required.</Text>}
+          <FormErrorMessage error={errors.password} />
         </View>
+
+        <CustomButton title="Sign Up" onPress={onSignUpPress} style={"mt-6"} />
+
+        <OAuth />
+
+        <Link
+          href="/sign-in"
+          style={tw.style("text-lg text-center text-general-200 mt-10")}
+        >
+          <Text>Already have an account?</Text>
+          <Text style={tw.style("text-primary-500")}> Log In</Text>
+        </Link>
       </View>
     </ScrollView>
   );

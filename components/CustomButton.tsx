@@ -47,7 +47,7 @@ const CustomButton = ({
     <TouchableOpacity
       onPress={onPress}
       style={tw.style(
-        "w-full rounded-full p-3 flex flex-row justify-center items-center shadow-md shadow-neutral-400/70",
+        "w-[90%] mx-auto rounded-full p-4 flex flex-row justify-center items-center shadow-md shadow-neutral-400/70 disabled:opacity-50",
         style && style,
         getBgVariantStyle(bgVariant),
       )}

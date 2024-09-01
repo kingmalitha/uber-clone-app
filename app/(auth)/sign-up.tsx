@@ -49,17 +49,21 @@ const SignUp = () => {
     code: "",
   });
 
-  const [showSuccessModal, setShowSuccessModal] = React.useState(true);
+  const [showSuccessModal, setShowSuccessModal] = React.useState(false);
 
   const onSignUpPress = handleSubmit(async (data) => {
     if (!isLoaded) {
       return;
     }
 
+    const firstName = data.name.split(" ")[0];
+    const lastName = data.name.split(" ")[1] || "";
+
     try {
       await signUp.create({
         emailAddress: data.email,
-        firstName: data.name,
+        firstName: firstName,
+        lastName: lastName,
         password: data.password,
       });
 
@@ -96,6 +100,10 @@ const SignUp = () => {
         });
         router.replace("/");
       } else {
+        console.error(JSON.stringify(completeSignUp, null, 2));
+
+        Alert.alert("Error", "Verification failed");
+
         setVerification({
           ...verification,
           state: "failed",

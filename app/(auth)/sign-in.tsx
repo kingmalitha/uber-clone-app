@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Image } from "react-native";
+import { View, Text, ScrollView, Image, Alert } from "react-native";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -7,9 +7,10 @@ import tw from "@/lib/tw";
 import { icons, images } from "@/constants/data";
 import InputField from "@/components/InputField";
 import CustomButton from "@/components/CustomButton";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import FormErrorMessage from "@/components/FormErrorMessage";
 import OAuth from "@/components/OAuth";
+import { isClerkAPIResponseError, useSignIn } from "@clerk/clerk-expo";
 
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -20,7 +21,7 @@ const SignIn = () => {
   const {
     control,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -29,8 +30,37 @@ const SignIn = () => {
     },
   });
 
-  const onSignInPress = handleSubmit((data) => {
-    console.log(data);
+  const { signIn, setActive, isLoaded } = useSignIn();
+  const router = useRouter();
+
+  const onSignInPress = handleSubmit(async (data) => {
+    if (!isLoaded) {
+      return;
+    }
+
+    try {
+      const signInAttempt = await signIn.create({
+        identifier: data.email,
+        password: data.password,
+      });
+
+      if (signInAttempt.status === "complete") {
+        await setActive({ session: signInAttempt.createdSessionId });
+        router.replace("/(root)/(tabs)/home");
+      } else {
+        // See https://clerk.com/docs/custom-flows/error-handling
+        // for more info on error handling
+        console.error(JSON.stringify(signInAttempt, null, 2));
+      }
+    } catch (err: unknown) {
+      let msg = "An error occurred. Please try again.";
+      if (isClerkAPIResponseError(err)) {
+        msg = err.errors[0].message;
+      }
+
+      console.error(JSON.stringify(err, null, 2));
+      Alert.alert("Error", msg);
+    }
   });
 
   return (

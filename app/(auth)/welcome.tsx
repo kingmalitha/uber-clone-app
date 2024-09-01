@@ -23,7 +23,7 @@ const Onboarding = () => {
         }}
         style={tw.style("w-full flex justify-end items-end p-5")}
       >
-        <Text style={tw.style("text-black text-md font-JakartaBold")}>
+        <Text style={tw.style("text-black text-base font-JakartaBold")}>
           Skip
         </Text>
       </TouchableOpacity>

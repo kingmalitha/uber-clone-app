@@ -1,5 +1,5 @@
-import { View, Text, ScrollView, Image } from "react-native";
-import { Controller, set, useForm } from "react-hook-form";
+import { View, Text, ScrollView, Image, Alert } from "react-native";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import React from "react";
@@ -12,12 +12,19 @@ import FormErrorMessage from "@/components/FormErrorMessage";
 import OAuth from "@/components/OAuth";
 import { isClerkAPIResponseError, useSignUp } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
+import { ReactNativeModal } from "react-native-modal";
 
 const signUpSchema = z.object({
   email: z.string().email("Please enter a valid email"),
   name: z.string().min(3, "Name must be at least 3 characters"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
+
+interface VerificationState {
+  state: "pending" | "success" | "failed" | "default";
+  error: string;
+  code: string;
+}
 
 const SignUp = () => {
   const { isLoaded, signUp, setActive } = useSignUp();
@@ -36,14 +43,13 @@ const SignUp = () => {
     },
   });
 
-  const [verification, setVerification] = React.useState({
+  const [verification, setVerification] = React.useState<VerificationState>({
     state: "default",
     error: "",
     code: "",
   });
 
-  const [pendingVerification, setPendingVerification] = React.useState(false);
-  const [code, setCode] = React.useState("");
+  const [showSuccessModal, setShowSuccessModal] = React.useState(true);
 
   const onSignUpPress = handleSubmit(async (data) => {
     if (!isLoaded) {
@@ -63,10 +69,12 @@ const SignUp = () => {
         ...verification,
         state: "pending",
       });
-    } catch (err: any) {
-      // See https://clerk.com/docs/custom-flows/error-handling
-      // for more info on error handling
-      console.error(JSON.stringify(err, null, 2));
+    } catch (err: unknown) {
+      if (isClerkAPIResponseError(err)) {
+        Alert.alert("Error", err.errors[0].longMessage);
+      } else {
+        Alert.alert("Error", "Please try again later");
+      }
     }
   });
 
@@ -99,12 +107,12 @@ const SignUp = () => {
       if (isClerkAPIResponseError(err)) {
         msg = err.errors[0].longMessage || "An error occurred";
       }
-
       setVerification({
         ...verification,
         state: "failed",
         error: msg,
       });
+      Alert.alert("Error", msg);
     }
   };
 
@@ -203,6 +211,79 @@ const SignUp = () => {
           <Text style={tw.style("text-primary-500")}> Log In</Text>
         </Link>
       </View>
+
+      <ReactNativeModal
+        isVisible={verification.state === "pending"}
+        onModalHide={() => {
+          if (verification.state === "success") {
+            setShowSuccessModal(true);
+          }
+        }}
+      >
+        <View style={tw.style("bg-white px-7 py-9 rounded-2xl min-h-[300px]")}>
+          <Text style={tw.style("text-2xl font-JakartaExtraBold text-center")}>
+            Verification
+          </Text>
+
+          <Text style={tw.style("font-Jakarta mb-5 mt-2")}>
+            We've sent a verification code to {signUp?.emailAddress}
+          </Text>
+
+          <InputField
+            label="Verification Code"
+            icon={icons.lock}
+            placeholder="123456"
+            keyboardType="numeric"
+            value={verification.code}
+            onChangeText={(code) =>
+              setVerification({
+                ...verification,
+                code: code,
+              })
+            }
+          />
+
+          {verification.error && (
+            <Text style={tw.style("text-red-500 text-sm mt-1")}>
+              {verification.error}
+            </Text>
+          )}
+
+          <CustomButton
+            title="Verify"
+            onPress={onPressVerify}
+            style={"mt-5 "}
+            bgVariant="success"
+          />
+        </View>
+      </ReactNativeModal>
+
+      <ReactNativeModal isVisible={showSuccessModal}>
+        <View style={tw.style("bg-white px-7 py-9 rounded-2xl min-h-[300px]")}>
+          <Image
+            source={images.check}
+            style={tw.style("w-[110px] h-[110px] mx-auto my-5")}
+          />
+
+          <Text style={tw.style("text-3xl font-JakartaBold text-center")}>
+            Verified
+          </Text>
+
+          <Text
+            style={tw.style(
+              "text-base text-gray-400 font-Jakarta text-center mt-2",
+            )}
+          >
+            You have successfully verified your account.
+          </Text>
+
+          <CustomButton
+            title="Browse Home"
+            onPress={() => router.replace("/(root)/(tabs)/home")}
+            style={"mt-5"}
+          />
+        </View>
+      </ReactNativeModal>
     </ScrollView>
   );
 };

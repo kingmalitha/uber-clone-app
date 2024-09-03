@@ -20,7 +20,7 @@ const RideCard = ({ ride }: { ride: Ride }) => {
             }}
             style={tw.style("w-[80px] h-[90px] rounded-lg")}
           />
-          <View style={tw.style("flex flex-col mx-5 pag-y-5 flex-1")}>
+          <View style={tw.style("flex flex-col mx-5 gap-y-5 flex-1")}>
             <View style={tw.style("flex flex-row items-center gap-x-2 ")}>
               <Image source={icons.to} style={tw.style("w-5 h-5")} />
               <Text

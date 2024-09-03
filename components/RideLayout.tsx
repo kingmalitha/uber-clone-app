@@ -21,7 +21,7 @@ const RideLayout = ({
   return (
     <GestureHandlerRootView>
       <View style={tw.style("flex-1 bg-white")}>
-        <View style={tw.style("flex flex-col h-screen bg-blue-500")}>
+        <View style={tw.style("flex flex-col h-full bg-blue-500")}>
           <View
             style={tw.style(
               "flex flex-row absolute z-10 top-16 items-center justify-start px-5",

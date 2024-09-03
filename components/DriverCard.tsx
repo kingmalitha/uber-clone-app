@@ -24,49 +24,35 @@ const DriverCard = ({ item, selected, setSelected }: DriverCardProps) => {
         style={tw.style("flex-1 flex flex-col items-start justify-center mx-3")}
       >
         <View style={tw.style("flex flex-row items-center justify-start mb-1")}>
-          <Text style={tw.style("text-lg font-JakartaRegular")}>
-            {item.title}
-          </Text>
+          <Text style={tw.style("text-lg font-Jakarta")}>{item.title}</Text>
 
-          <View style={tw.style("flex flex-row items-center space-x-1 ml-2")}>
+          <View style={tw.style("flex flex-row items-center gap-x-1 ml-2")}>
             <Image source={icons.star} style={tw.style("w-3.5 h-3.5")} />
-            <Text style={tw.style("text-sm font-JakartaRegular")}>4</Text>
+            <Text style={tw.style("text-sm font-Jakarta")}>4</Text>
           </View>
         </View>
 
         <View style={tw.style("flex flex-row items-center justify-start")}>
           <View style={tw.style("flex flex-row items-center")}>
             <Image source={icons.dollar} style={tw.style("w-4 h-4")} />
-            <Text style={tw.style("text-sm font-JakartaRegular ml-1")}>
+            <Text style={tw.style("text-sm font-Jakarta ml-1")}>
               ${item.price}
             </Text>
           </View>
 
-          <Text
-            style={tw.style(
-              "text-sm font-JakartaRegular text-general-800 mx-1",
-            )}
-          >
+          <Text style={tw.style("text-sm font-Jakarta text-general-800 mx-1")}>
             |
           </Text>
 
-          <Text
-            style={tw.style("text-sm font-JakartaRegular text-general-800")}
-          >
+          <Text style={tw.style("text-sm font-Jakarta text-general-800")}>
             {formatTime(item.time!)}
           </Text>
 
-          <Text
-            style={tw.style(
-              "text-sm font-JakartaRegular text-general-800 mx-1",
-            )}
-          >
+          <Text style={tw.style("text-sm font-Jakarta text-general-800 mx-1")}>
             |
           </Text>
 
-          <Text
-            style={tw.style("text-sm font-JakartaRegular text-general-800")}
-          >
+          <Text style={tw.style("text-sm font-Jakarta text-general-800")}>
             {item.car_seats} seats
           </Text>
         </View>

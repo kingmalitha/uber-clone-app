@@ -36,7 +36,7 @@ const BookRide = () => {
 
           <View
             style={tw.style(
-              "flex flex-row items-center justify-center mt-5 space-x-2",
+              "flex flex-row items-center justify-center mt-5 gap-x-2",
             )}
           >
             <Text style={tw.style("text-lg font-JakartaSemiBold")}>
@@ -49,7 +49,7 @@ const BookRide = () => {
                 style={tw.style("w-5 h-5")}
                 resizeMode="contain"
               />
-              <Text style={tw.style("text-lg font-JakartaRegular")}>
+              <Text style={tw.style("text-lg font-Jakarta")}>
                 {driverDetails?.rating}
               </Text>
             </View>
@@ -66,12 +66,8 @@ const BookRide = () => {
               "flex flex-row items-center justify-between w-full border-b border-white py-3",
             )}
           >
-            <Text style={tw.style("text-lg font-JakartaRegular")}>
-              Ride Price
-            </Text>
-            <Text
-              style={tw.style("text-lg font-JakartaRegular text-[#0CC25F]")}
-            >
+            <Text style={tw.style("text-lg font-Jakarta")}>Ride Price</Text>
+            <Text style={tw.style("text-lg font-Jakarta text-[#0CC25F]")}>
               ${driverDetails?.price}
             </Text>
           </View>
@@ -81,10 +77,8 @@ const BookRide = () => {
               "flex flex-row items-center justify-between w-full border-b border-white py-3",
             )}
           >
-            <Text style={tw.style("text-lg font-JakartaRegular")}>
-              Pickup Time
-            </Text>
-            <Text style={tw.style("text-lg font-JakartaRegular")}>
+            <Text style={tw.style("text-lg font-Jakarta")}>Pickup Time</Text>
+            <Text style={tw.style("text-lg font-Jakarta")}>
               {formatTime(driverDetails?.time!)}
             </Text>
           </View>
@@ -94,10 +88,8 @@ const BookRide = () => {
               "flex flex-row items-center justify-between w-full py-3",
             )}
           >
-            <Text style={tw.style("text-lg font-JakartaRegular")}>
-              Car Seats
-            </Text>
-            <Text style={tw.style("text-lg font-JakartaRegular")}>
+            <Text style={tw.style("text-lg font-Jakarta")}>Car Seats</Text>
+            <Text style={tw.style("text-lg font-Jakarta")}>
               {driverDetails?.car_seats}
             </Text>
           </View>
@@ -114,7 +106,7 @@ const BookRide = () => {
             )}
           >
             <Image source={icons.to} style={tw.style("w-6 h-6")} />
-            <Text style={tw.style("text-lg font-JakartaRegular ml-2")}>
+            <Text style={tw.style("text-lg font-Jakarta ml-2")}>
               {userAddress}
             </Text>
           </View>
@@ -125,7 +117,7 @@ const BookRide = () => {
             )}
           >
             <Image source={icons.point} style={tw.style("w-6 h-6")} />
-            <Text style={tw.style("text-lg font-JakartaRegular ml-2")}>
+            <Text style={tw.style("text-lg font-Jakarta ml-2")}>
               {destinationAddress}
             </Text>
           </View>

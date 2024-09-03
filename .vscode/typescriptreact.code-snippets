@@ -1,0 +1,7 @@
+{
+  "Tailwind Style": {
+    "prefix": "tws",
+    "body": ["style={tw.style(\"$1\")}"],
+    "description": "Insert Tailwind style attribute",
+  },
+}

@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity } from "react-native";
+import { ActivityIndicator, Text, TouchableOpacity } from "react-native";
 import React from "react";
 import tw from "@/lib/tw";
 import { ButtonProps } from "@/types/type";
@@ -41,6 +41,7 @@ const CustomButton = ({
   IconLeft,
   IconRight,
   style,
+  isLoading = false,
   ...props
 }: ButtonProps) => {
   return (
@@ -53,6 +54,8 @@ const CustomButton = ({
       )}
       {...props}
     >
+      <ActivityIndicator animating={isLoading} color="white" />
+
       {IconLeft && <IconLeft />}
       <Text
         style={tw.style(getTextVariantStyle(textVariant), "text-lg font-bold ")}

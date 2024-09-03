@@ -13,6 +13,8 @@ import OAuth from "@/components/OAuth";
 import { isClerkAPIResponseError, useSignUp } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import { ReactNativeModal } from "react-native-modal";
+import { useMutation } from "@tanstack/react-query";
+import { createNewUserApi } from "@/apis/users";
 
 const signUpSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -29,6 +31,10 @@ interface VerificationState {
 const SignUp = () => {
   const { isLoaded, signUp, setActive } = useSignUp();
   const router = useRouter();
+
+  const { mutate: saveToDatabse, isPending } = useMutation({
+    mutationFn: createNewUserApi,
+  });
 
   const {
     control,
@@ -98,6 +104,14 @@ const SignUp = () => {
           ...verification,
           state: "success",
         });
+
+        // SAVE TO DATABASE
+        await saveToDatabse({
+          email: completeSignUp.emailAddress!,
+          name: completeSignUp.firstName + " " + completeSignUp.lastName,
+          clerkId: completeSignUp.createdUserId!,
+        });
+
         router.replace("/");
       } else {
         console.error(JSON.stringify(completeSignUp, null, 2));

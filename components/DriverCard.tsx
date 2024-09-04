@@ -5,7 +5,6 @@ import { DriverCardProps } from "@/types/type";
 import { icons } from "@/constants/data";
 import tw from "@/lib/tw";
 import { formatTime } from "@/lib/utils/date";
-import { parse } from "@babel/core";
 
 const DriverCard = ({ item, selected, setSelected }: DriverCardProps) => {
   return (

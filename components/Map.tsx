@@ -63,6 +63,7 @@ const Map = () => {
         setDrivers(drivers as MarkerData[]);
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [destinationLatitude, destinationLongitude, markers]);
 
   if (fetchingDrivers || !userLatitude || !userLongitude) {
@@ -106,6 +107,19 @@ const Map = () => {
           }
         />
       ))}
+      {destinationLatitude && destinationLongitude && (
+        <>
+          <Marker
+            key={"destination"}
+            coordinate={{
+              latitude: destinationLatitude,
+              longitude: destinationLongitude,
+            }}
+            title="Destination"
+            image={icons.pin}
+          />
+        </>
+      )}
     </MapView>
   );
 };

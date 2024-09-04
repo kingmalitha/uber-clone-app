@@ -5,6 +5,7 @@ import { DriverCardProps } from "@/types/type";
 import { icons } from "@/constants/data";
 import tw from "@/lib/tw";
 import { formatTime } from "@/lib/utils/date";
+import { parse } from "@babel/core";
 
 const DriverCard = ({ item, selected, setSelected }: DriverCardProps) => {
   return (
@@ -45,7 +46,7 @@ const DriverCard = ({ item, selected, setSelected }: DriverCardProps) => {
           </Text>
 
           <Text style={tw.style("text-sm font-Jakarta text-general-800")}>
-            {formatTime(item.time!)}
+            {formatTime(parseInt(`${item.time}`) || 5)}
           </Text>
 
           <Text style={tw.style("text-sm font-Jakarta text-general-800 mx-1")}>

@@ -50,7 +50,7 @@ const BookRide = () => {
                 {driverDetails?.title}
               </Text>
 
-              <View style={tw.style("flex flex-row items-center space-x-0.5")}>
+              <View style={tw.style("flex flex-row items-center gap-x-0.5")}>
                 <Image
                   source={icons.star}
                   style={tw.style("w-5 h-5")}

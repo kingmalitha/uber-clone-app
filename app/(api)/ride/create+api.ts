@@ -12,7 +12,7 @@ const createNewRideBodySchema = z.object({
   fare_price: z.number(),
   payment_status: z.string(),
   driver_id: z.number(),
-  user_id: z.number(),
+  user_id: z.string(),
 });
 
 export async function POST(request: Request) {

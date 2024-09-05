@@ -12,6 +12,8 @@ import { icons } from "@/constants/data";
 import { useQuery } from "@tanstack/react-query";
 import { getAllDriversQuery } from "@/apis/drivers";
 import { ActivityIndicator, View, Text } from "react-native";
+import MapViewDirections from "react-native-maps-directions";
+import { Axios, AxiosError } from "axios";
 
 const Map = () => {
   const {
@@ -36,6 +38,14 @@ const Map = () => {
     isError: isFetchingDriversError,
     error: fetchingDriversError,
   } = useQuery(getAllDriversQuery);
+
+  if (isFetchingDriversError) {
+    console.log(fetchingDriversError);
+
+    if (fetchingDriversError instanceof AxiosError) {
+      console.log(fetchingDriversError.toJSON());
+    }
+  }
 
   useEffect(() => {
     if (Array.isArray(drivers)) {
@@ -117,6 +127,20 @@ const Map = () => {
             }}
             title="Destination"
             image={icons.pin}
+          />
+
+          <MapViewDirections
+            origin={{
+              latitude: userLatitude,
+              longitude: userLongitude,
+            }}
+            destination={{
+              latitude: destinationLatitude,
+              longitude: destinationLongitude,
+            }}
+            apikey={process.env.EXPO_PUBLIC_GOOGLE_API_KEY!}
+            strokeColor="#0286ff"
+            strokeWidth={2}
           />
         </>
       )}

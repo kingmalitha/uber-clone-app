@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       user_id,
     } = createNewRideBodySchema.parse(body);
 
-    const sql = neon(`${process.env.DATABASE_URL}`);
+    const sql = neon(`${process.env.NEON_DATABASE_URL}`);
 
     const response = await sql`
       INSERT INTO rides ( 

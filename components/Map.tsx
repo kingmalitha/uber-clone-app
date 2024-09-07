@@ -7,13 +7,11 @@ import {
   calculateRegion,
   generateMarkersFromData,
 } from "@/lib/utils/map";
-import { MarkerData } from "@/types/type";
+import { Driver, MarkerData } from "@/types/type";
 import { icons } from "@/constants/data";
-import { useQuery } from "@tanstack/react-query";
-import { getAllDriversQuery } from "@/apis/drivers";
 import { ActivityIndicator, View, Text } from "react-native";
 import MapViewDirections from "react-native-maps-directions";
-import { Axios, AxiosError } from "axios";
+import { useFetch } from "@/lib/fetch";
 
 const Map = () => {
   const {
@@ -32,20 +30,7 @@ const Map = () => {
 
   const { selectedDriver, setDrivers } = useDriverStore();
   const [markers, setMarkers] = React.useState<MarkerData[]>([]);
-  const {
-    data: drivers,
-    isLoading: fetchingDrivers,
-    isError: isFetchingDriversError,
-    error: fetchingDriversError,
-  } = useQuery(getAllDriversQuery);
-
-  if (isFetchingDriversError) {
-    console.log(fetchingDriversError);
-
-    if (fetchingDriversError instanceof AxiosError) {
-      console.log(fetchingDriversError.toJSON());
-    }
-  }
+  const { data: drivers, loading, error } = useFetch<Driver[]>("/(api)/driver");
 
   useEffect(() => {
     if (Array.isArray(drivers)) {
@@ -76,7 +61,7 @@ const Map = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [destinationLatitude, destinationLongitude, markers]);
 
-  if (fetchingDrivers || !userLatitude || !userLongitude) {
+  if (loading || !userLatitude || !userLongitude) {
     return (
       <View>
         <ActivityIndicator size="small" color="black" />
@@ -84,13 +69,12 @@ const Map = () => {
     );
   }
 
-  if (isFetchingDriversError) {
+  if (error)
     return (
-      <View>
-        <Text>{fetchingDriversError?.message}</Text>
+      <View style={tw.style("flex justify-between items-center w-full")}>
+        <Text>Error: {error}</Text>
       </View>
     );
-  }
 
   return (
     <MapView

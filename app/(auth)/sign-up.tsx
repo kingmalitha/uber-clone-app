@@ -13,8 +13,7 @@ import OAuth from "@/components/OAuth";
 import { isClerkAPIResponseError, useSignUp } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import { ReactNativeModal } from "react-native-modal";
-import { useMutation } from "@tanstack/react-query";
-import { createNewUserApi } from "@/apis/users";
+import { fetchAPI } from "@/lib/fetch";
 
 const signUpSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -31,10 +30,6 @@ interface VerificationState {
 const SignUp = () => {
   const { isLoaded, signUp, setActive } = useSignUp();
   const router = useRouter();
-
-  const { mutate: saveToDatabse, isPending } = useMutation({
-    mutationFn: createNewUserApi,
-  });
 
   const {
     control,
@@ -99,17 +94,20 @@ const SignUp = () => {
       });
 
       if (completeSignUp.status === "complete") {
+        // SAVE TO DATABASE
+        await fetchAPI("/(api)/user", {
+          method: "POST",
+          body: JSON.stringify({
+            email: completeSignUp.emailAddress!,
+            name: completeSignUp.firstName + " " + completeSignUp.lastName,
+            clerkId: completeSignUp.createdUserId!,
+          }),
+        });
+
         await setActive({ session: completeSignUp.createdSessionId });
         setVerification({
           ...verification,
           state: "success",
-        });
-
-        // SAVE TO DATABASE
-        await saveToDatabse({
-          email: completeSignUp.emailAddress!,
-          name: completeSignUp.firstName + " " + completeSignUp.lastName,
-          clerkId: completeSignUp.createdUserId!,
         });
 
         router.replace("/");

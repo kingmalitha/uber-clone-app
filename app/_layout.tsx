@@ -6,6 +6,7 @@ import "react-native-reanimated";
 import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { tokenCache } from "@/lib/auth";
+import { LogBox } from "react-native";
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
 
@@ -17,6 +18,8 @@ if (!publishableKey) {
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+LogBox.ignoreLogs(["Clerk:"]); // Ignore log notification by message
 
 export default function RootLayout() {
   const queryClient = new QueryClient();

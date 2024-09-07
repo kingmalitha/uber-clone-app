@@ -1,10 +1,15 @@
-import { createUserSchema } from "@/apis/users";
 import { neon } from "@neondatabase/serverless";
 import { z } from "zod";
 
+export const createUserSchema = z.object({
+  email: z.string().email(),
+  name: z.string().min(3),
+  clerkId: z.string(),
+});
+
 export async function POST(request: Request) {
   try {
-    const sql = neon(process.env.NEON_DATABASE_URL!);
+    const sql = neon(`${process.env.NEON_DATABASE_URL}`);
 
     const body = await request.json();
 

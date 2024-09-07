@@ -4,15 +4,13 @@ import CustomButton from "./CustomButton";
 
 import { useStripe } from "@stripe/stripe-react-native";
 import { PaymentProps } from "@/types/type";
-import { useMutation } from "@tanstack/react-query";
-import { createNewIntentApi, createPayApi } from "@/apis/stripe";
-import { createRideApi } from "@/apis/ride";
 import { useLocationStore } from "@/store";
 import { useAuth } from "@clerk/clerk-expo";
 import ReactNativeModal from "react-native-modal";
 import tw from "@/lib/tw";
 import { images } from "@/constants/data";
 import { router } from "expo-router";
+import { fetchAPI } from "@/lib/fetch";
 
 const Payment = ({
   fullName,
@@ -34,21 +32,6 @@ const Payment = ({
     destinationLongitude,
   } = useLocationStore();
 
-  const { mutate: pay } = useMutation({
-    mutationFn: createPayApi,
-    onSuccess: (data) => {
-      console.log(data);
-    },
-  });
-
-  const { mutate: create } = useMutation({
-    mutationFn: createNewIntentApi,
-  });
-
-  const { mutate: createRide } = useMutation({
-    mutationFn: createRideApi,
-  });
-
   const initializePaymentSheet = async () => {
     const { error } = await initPaymentSheet({
       merchantDisplayName: "KingMalitha Rides",
@@ -58,61 +41,73 @@ const Payment = ({
           currencyCode: "USD",
         },
         confirmHandler: async (paymentMethod, _, intentCreationCallback) => {
-          await create(
+          const { paymentIntent, customer } = await fetchAPI(
+            "/(api)/(stripe)/create",
             {
-              email: email,
-              name: fullName || email.split("@")[0],
-              amount: amount,
-              paymentMethodId: paymentMethod.id,
-            },
-            {
-              onSuccess(data, variables, context) {
-                if (data.paymentIntent.client_secret) {
-                  pay(
-                    {
-                      payment_method_id: paymentMethod.id,
-                      payment_intent_id: data.paymentIntent.id,
-                      customer_id: data.customer,
-                    },
-                    {
-                      onSuccess(data, variables, context) {
-                        if (data.result.client_secret) {
-                          if (
-                            !userAddress ||
-                            !destinationAddress ||
-                            !userLatitude ||
-                            !userLongitude ||
-                            !destinationLatitude ||
-                            !destinationLongitude
-                          ) {
-                            return;
-                          }
-
-                          createRide({
-                            origin_address: userAddress,
-                            destination_address: destinationAddress,
-                            origin_latitude: userLatitude,
-                            origin_longitude: userLongitude,
-                            destination_latitude: destinationLatitude,
-                            destination_longitude: destinationLongitude,
-                            ride_time: rideTime.toFixed(0),
-                            fare_price: parseInt(amount) * 100,
-                            payment_status: "paid",
-                            user_id: userId!,
-                            driver_id: driverId,
-                          });
-
-                          intentCreationCallback({
-                            clientSecret: data.result.client_secret,
-                          });
-                        }
-                      },
-                    },
-                  );
-                }
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
               },
+              body: JSON.stringify({
+                name: fullName || email.split("@")[0],
+                email: email,
+                amount: amount,
+                paymentMethodId: paymentMethod.id,
+              }),
             },
           );
+
+          if (paymentIntent.client_secret) {
+            const { result } = await fetchAPI("/(api)/(stripe)/pay", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                payment_method_id: paymentMethod.id,
+                payment_intent_id: paymentIntent.id,
+                customer_id: customer,
+                client_secret: paymentIntent.client_secret,
+              }),
+            });
+
+            if (result.client_secret) {
+              if (
+                !userAddress ||
+                !destinationAddress ||
+                !userLatitude ||
+                !userLongitude ||
+                !destinationLatitude ||
+                !destinationLongitude
+              ) {
+                return;
+              }
+
+              await fetchAPI("/(api)/ride/create", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  origin_address: userAddress,
+                  destination_address: destinationAddress,
+                  origin_latitude: userLatitude,
+                  origin_longitude: userLongitude,
+                  destination_latitude: destinationLatitude,
+                  destination_longitude: destinationLongitude,
+                  ride_time: rideTime.toFixed(0),
+                  fare_price: parseInt(amount) * 100,
+                  payment_status: "paid",
+                  driver_id: driverId,
+                  user_id: userId,
+                }),
+              });
+
+              intentCreationCallback({
+                clientSecret: result.client_secret,
+              });
+            }
+          }
         },
       },
       returnURL: "myapp://book-ride",

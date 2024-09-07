@@ -5,7 +5,7 @@ import RideCard from "@/components/RideCard";
 import { icons, images } from "@/constants/data";
 import tw from "@/lib/tw";
 import { useLocationStore } from "@/store";
-import { useUser } from "@clerk/clerk-expo";
+import { useAuth, useUser } from "@clerk/clerk-expo";
 import { useEffect, useState } from "react";
 
 import {
@@ -129,12 +129,16 @@ const RECENT_RIDES = [
 export default function HomePage() {
   const { setUserLocation, setDestinationLocation } = useLocationStore();
   const { user } = useUser();
+  const { signOut } = useAuth();
   const router = useRouter();
   const loading = true;
 
   const [hasPermission, setHasPermission] = useState(false);
 
-  const handleSignOut = async () => {};
+  const handleSignOut = () => {
+    signOut();
+    router.replace("/(auth)/sign-in");
+  };
 
   const handleDestinationPress = (location: {
     latitude: number;

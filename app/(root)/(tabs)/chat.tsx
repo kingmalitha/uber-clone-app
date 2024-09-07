@@ -9,7 +9,7 @@ const Chat = () => {
     <SafeAreaView style={tw.style("flex-1 bg-white p-5")}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <Text style={tw.style("text-2xl font-JakartaBold")}>Chat</Text>
-        <View style={tw.style("flex-1 h-fit flex justify-center items-center")}>
+        <View style={tw.style("flex-1 flex justify-center items-center")}>
           <Image
             source={images.message}
             alt="message"
